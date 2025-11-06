@@ -1,0 +1,24 @@
+# --- model provider added by ZCF ---
+model_provider = "1"
+
+
+[model_providers.1]
+name = "1"
+base_url = "https://api.codexzh.com/v1"
+wire_api = "responses"
+env_key = "1_API_KEY"
+requires_openai_auth = true
+model = "gpt-5-codex"
+
+# --- MCP servers added by ZCF ---
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+
+[mcp_servers.fetch]
+command = "uvx"
+args = ["mcp-server-fetch"]
+
+[mcp_servers.sequential-thinking]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-sequential-thinking"]
