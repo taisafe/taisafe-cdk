@@ -5,7 +5,11 @@
 **Status**: Draft  
 **Input**: User description: "$ARGUMENTS"
 
-## User Scenarios & Testing *(mandatory)*
+## Goal *(mandatory)*
+
+[描述此功能的業務目標、預期成果、稽核需求與成功條件。務必註明對應的任務單或憲章條目。]
+
+## User Stories & Testing *(mandatory)*
 
 <!--
   IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
@@ -65,15 +69,38 @@
 
 [Add more user stories as needed, each with an assigned priority]
 
-### Edge Cases
+## Input/Output Contract *(mandatory)*
 
 <!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right edge cases.
+  ACTION REQUIRED: 逐一列出所有外部介面（HTTP、CLI、批次匯入匯出等）的資料契約。
+  每條契約 MUST 定義來源、授權條件、輸入格式、驗證規則、成功／失敗輸出與審計欄位。
 -->
 
-- What happens when [boundary condition]?
-- How does system handle [error scenario]?
+- **Contract ID**: [唯一編號，提交與任務須引用]
+  - **Interface**: [endpoint/path/trigger]
+  - **Input**: [欄位定義、型別、限制條件、角色可以執行的操作]
+  - **Output**: [成功響應、錯誤碼與訊息格式、審計紀錄欄位]
+
+## State Transition *(mandatory)*
+
+<!--
+  ACTION REQUIRED: 以圖表或表格描述核心資料流程、Session 狀態與角色權限（Admin / Operator / Auditor）的轉換條件。
+  若使用圖表，可採 Mermaid，並補充文字說明過期與回滾策略。
+-->
+
+```mermaid
+stateDiagram-v2
+    [描述主要狀態與合法轉換]
+```
+
+## Error Cases *(mandatory)*
+
+<!--
+  ACTION REQUIRED: 列舉所有可預期的錯誤情境，並為每一條提供錯誤碼、對使用者可見的訊息、日誌與審計要求以及回復策略。
+-->
+
+- **EC-001**: [情境描述] → [錯誤碼 / 訊息 / 審計紀錄 / 回復]
+- **EC-002**: [情境描述] → [...]
 
 ## Requirements *(mandatory)*
 

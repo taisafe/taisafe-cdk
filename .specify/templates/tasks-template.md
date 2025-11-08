@@ -17,6 +17,8 @@ description: "Task list template for feature implementation"
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
+- 引用 `/specs/[###-feature-name]/spec.md` 中的 Goal/Contract/Error Case 編號以維持追蹤
+- 標明輸入驗證、Session 管理與 `audit_log` 相關工作的檔案位置
 
 ## Path Conventions
 
@@ -59,6 +61,10 @@ description: "Task list template for feature implementation"
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
+
+**必備檢查**：
+- 完成權限與 Session 控制流程（對應規格中的 State Transition）
+- 建立輸入驗證、錯誤處理骨架並接上 `audit_log`
 
 Examples of foundational tasks (adjust based on your project):
 

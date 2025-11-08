@@ -1,0 +1,378 @@
+openapi: 3.0.3
+info:
+  title: Taisafe-CDK Core API
+  version: 0.1.0
+  description: >
+    Internal endpoints for batch creation, redemption, search, auth, and audit export.
+servers:
+  - url: https://taisafe.internal/api
+paths:
+  /cdk/batches:
+    post:
+      summary: Create CDK batch
+      operationId: createBatch
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreateRequest'
+      responses:
+        '201':
+          description: Batch created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCreateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: Validation errors (PATTERN_DUPLICATE, LIMIT_EXCEEDED)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /cdk/redeem:
+    post:
+      summary: Redeem CDK
+      operationId: redeemCode
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RedeemRequest'
+      responses:
+        '200':
+          description: Redemption result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedeemResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Duplicate redemption
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /cdk/search:
+    get:
+      summary: Search CDKs
+      operationId: searchCodes
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: query
+          name: batch_id
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/CodeStatus'
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Paged result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '403':
+          description: SEC_DENY_ROLE
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No records
+  /auth/login:
+    post:
+      summary: Login
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '423':
+          description: Account locked
+  /auth/logout:
+    post:
+      summary: Logout
+      operationId: logout
+      security:
+        - sessionAuth: []
+      responses:
+        '204':
+          description: Session terminated
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /audit/logs:
+    get:
+      summary: Query audit logs
+      operationId: listAudit
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: query
+          name: action
+          schema:
+            type: string
+        - in: query
+          name: actor
+          schema:
+            type: integer
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Audit entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditResponse'
+        '403':
+          description: SEC_DENY_ROLE
+  /audit/export.csv:
+    get:
+      summary: Export audit logs as CSV
+      operationId: exportAudit
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: query
+          name: action
+          schema:
+            type: string
+        - in: query
+          name: actor
+          schema:
+            type: integer
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: CSV payload
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '202':
+          description: Export queued (EXPORT_TIMEOUT)
+        '403':
+          description: SEC_DENY_ROLE
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: taisafe_session
+  schemas:
+    BatchCreateRequest:
+      type: object
+      required: [batch_name, quantity, pattern, expires_at]
+      properties:
+        batch_name:
+          type: string
+          minLength: 3
+          maxLength: 50
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 10000
+        pattern:
+          type: string
+          pattern: "^(TAI[-A-Z0-9{}]+)$"
+          description: "單層占位符 {DATE} {SEQ} {RANDOMn}"
+        expires_at:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
+    BatchCreateResponse:
+      type: object
+      properties:
+        batch_id:
+          type: integer
+        created_count:
+          type: integer
+        expires_at:
+          type: string
+          format: date-time
+        export_url:
+          type: string
+          format: uri
+    RedeemRequest:
+      type: object
+      required: [code, channel]
+      properties:
+        code:
+          type: string
+        channel:
+          type: string
+    RedeemResponse:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/RedeemStatus'
+        redeemed_at:
+          type: string
+          format: date-time
+        operator:
+          type: string
+    RedeemStatus:
+      type: string
+      enum: [success, invalid, expired, used]
+    SearchResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CodeView'
+        stats:
+          type: object
+          properties:
+            total:
+              type: integer
+            redeemed:
+              type: integer
+            active:
+              type: integer
+        page:
+          type: integer
+        total_pages:
+          type: integer
+    CodeView:
+      type: object
+      properties:
+        code:
+          type: string
+        status:
+          $ref: '#/components/schemas/CodeStatus'
+        batch_id:
+          type: integer
+        expires_at:
+          type: string
+          format: date-time
+        redeemed_at:
+          type: string
+          format: date-time
+        redeemed_by:
+          type: string
+    CodeStatus:
+      type: string
+      enum: [drafted, issued, redeemed, expired, revoked, audited]
+    LoginRequest:
+      type: object
+      required: [account, password]
+      properties:
+        account:
+          type: string
+        password:
+          type: string
+    LoginResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        role:
+          type: string
+        redirect:
+          type: string
+    AuditResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEntry'
+    AuditEntry:
+      type: object
+      properties:
+        action:
+          type: string
+        actor_id:
+          type: integer
+        target_type:
+          type: string
+        target_id:
+          type: string
+        result_code:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

@@ -31,7 +31,10 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- ✅ 規格對齊：此功能已有 `/specs/[###-feature-name]/spec.md`，且涵蓋 Goal、User Stories、I/O 契約、狀態轉換與錯誤情境。
+- ✅ 架構一致：方案遵守原生堆疊（Nginx + PHP 8.3 + MySQL 5.7）與目錄分層（`/public/`, `/src/`, `/config/`, `/runtime/`），並使用 HTMX/Hyperscript 於核准範疇內。
+- ✅ 安全審計：已標記輸入驗證、Session 控管、權限檢查與 `audit_log` 需求的實作位置。
+- ✅ 變更追蹤：列出此計畫對應的規格版本／任務單連結，提交說明與規格條目一一對應。
 
 ## Project Structure
 

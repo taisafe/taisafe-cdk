@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="phpunit.bootstrap.php"
+         colors="true"
+         stopOnFailure="false"
+         stderr="true"
+         cacheResult="false">
+    <testsuites>
+        <testsuite name="Unit and Integration Tests">
+            <directory>./tests</directory>
+        </testsuite>
+    </testsuites>
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </coverage>
+</phpunit>

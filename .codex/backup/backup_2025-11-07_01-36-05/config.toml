@@ -1,0 +1,10 @@
+model = "gpt-5-codex"
+model_provider = "1"
+
+[model_providers.1]
+base_url = "https://api.codexzh.com/v1"
+env_key = "1_API_KEY"
+model = "gpt-5-codex"
+name = "1"
+requires_openai_auth = true
+wire_api = "responses"

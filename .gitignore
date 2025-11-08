@@ -1,0 +1,19 @@
+# PHP / general
+vendor/
+*.log
+*.cache
+.env
+.env.*
+
+# Node/Cypress
+node_modules/
+dist/
+coverage/
+
+# Runtime artifacts
+runtime/cache/
+runtime/logs/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
